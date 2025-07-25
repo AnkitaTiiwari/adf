@@ -1,0 +1,45 @@
+{
+	"name": "df_test",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_source_orderitem",
+						"type": "DatasetReference"
+					},
+					"name": "orderitem"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_dest_stores",
+						"type": "DatasetReference"
+					},
+					"name": "sinkintotemp"
+				}
+			],
+			"transformations": [
+				{
+					"name": "newcolumn"
+				}
+			],
+			"scriptLines": [
+				"source(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     partitionBy('roundRobin', 2)) ~> orderitem",
+				"orderitem derive(newcolumn = currentDate()) ~> newcolumn",
+				"newcolumn sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> sinkintotemp"
+			]
+		}
+	}
+}
