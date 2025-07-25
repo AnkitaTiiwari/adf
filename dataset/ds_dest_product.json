@@ -1,0 +1,19 @@
+{
+	"name": "ds_dest_product",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_dest_adls",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "product.json",
+				"fileSystem": "raw"
+			}
+		},
+		"schema": {}
+	}
+}
