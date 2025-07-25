@@ -1,0 +1,20 @@
+{
+	"name": "ds_dest_order",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_dest_adls",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "order.parquet",
+				"fileSystem": "raw"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": []
+	}
+}
