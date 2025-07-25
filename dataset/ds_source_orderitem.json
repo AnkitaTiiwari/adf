@@ -1,5 +1,5 @@
 {
-	"name": "ds_orders",
+	"name": "ds_source_orderitem",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "ls_source_blob",
