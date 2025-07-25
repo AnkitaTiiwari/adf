@@ -1,0 +1,9 @@
+{
+	"name": "adf-dev-dewest",
+	"location": "germanywestcentral",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "dbf62cb0-7829-40cf-8104-0ca813b9d52a",
+		"tenantId": "33604e5d-767d-4505-9775-9a545ebda13d"
+	}
+}
