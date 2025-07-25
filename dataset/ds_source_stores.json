@@ -1,0 +1,19 @@
+{
+	"name": "ds_source_stores",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_dest_adls",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"folderPath": "temp/source",
+				"fileSystem": "raw"
+			}
+		},
+		"schema": {}
+	}
+}
