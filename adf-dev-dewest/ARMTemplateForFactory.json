@@ -80,28 +80,18 @@
 								"parameters": {}
 							}
 						]
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/ds_source_customer')]",
-				"[concat(variables('factoryId'), '/datasets/ds_dest_cust_adls')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/pipe_copy_order_item_to_raw')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
+					},
 					{
 						"name": "copy_orders_to_raw",
 						"type": "Copy",
-						"dependsOn": [],
+						"dependsOn": [
+							{
+								"activity": "copy_customer_to_raw",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
 						"policy": {
 							"timeout": "0.12:00:00",
 							"retry": 0,
@@ -158,28 +148,18 @@
 								"parameters": {}
 							}
 						]
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/ds_source_orderitem')]",
-				"[concat(variables('factoryId'), '/datasets/ds_dest_orderitem')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/pipe_copy_orders_to_raw')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
+					},
 					{
-						"name": "copy_orders_to_raw",
+						"name": "copy_orders_to_raw_copy1",
 						"type": "Copy",
-						"dependsOn": [],
+						"dependsOn": [
+							{
+								"activity": "copy_store_to_raw",
+								"dependencyConditions": [
+									"Completed"
+								]
+							}
+						],
 						"policy": {
 							"timeout": "0.12:00:00",
 							"retry": 0,
@@ -234,28 +214,76 @@
 								"parameters": {}
 							}
 						]
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/ds_source_order')]",
-				"[concat(variables('factoryId'), '/datasets/ds_dest_order')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/pipe_copy_store_to_raw')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
+					},
+					{
+						"name": "copy_product_to_raw",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "copy_orders_to_raw",
+								"dependencyConditions": [
+									"Completed"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "JsonSource",
+								"storeSettings": {
+									"type": "AzureBlobStorageReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "JsonReadSettings"
+								}
+							},
+							"sink": {
+								"type": "JsonSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings",
+									"copyBehavior": "PreserveHierarchy"
+								},
+								"formatSettings": {
+									"type": "JsonWriteSettings"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "ds_source_product",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "ds_dest_product",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
 					{
 						"name": "copy_store_to_raw",
 						"type": "Copy",
-						"dependsOn": [],
+						"dependsOn": [
+							{
+								"activity": "copy_product_to_raw",
+								"dependencyConditions": [
+									"Completed"
+								]
+							}
+						],
 						"policy": {
 							"timeout": "0.12:00:00",
 							"retry": 0,
@@ -310,6 +338,14 @@
 				"annotations": []
 			},
 			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ds_source_customer')]",
+				"[concat(variables('factoryId'), '/datasets/ds_dest_cust_adls')]",
+				"[concat(variables('factoryId'), '/datasets/ds_source_orderitem')]",
+				"[concat(variables('factoryId'), '/datasets/ds_dest_orderitem')]",
+				"[concat(variables('factoryId'), '/datasets/ds_source_order')]",
+				"[concat(variables('factoryId'), '/datasets/ds_dest_order')]",
+				"[concat(variables('factoryId'), '/datasets/ds_source_product')]",
+				"[concat(variables('factoryId'), '/datasets/ds_dest_product')]",
 				"[concat(variables('factoryId'), '/datasets/ds_source_store')]",
 				"[concat(variables('factoryId'), '/datasets/ds_dest_store')]"
 			]
@@ -322,6 +358,9 @@
 				"linkedServiceName": {
 					"referenceName": "ls_dest_adls",
 					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "02 Raw"
 				},
 				"annotations": [],
 				"type": "Json",
@@ -345,6 +384,9 @@
 				"linkedServiceName": {
 					"referenceName": "ls_dest_adls",
 					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "02 Raw"
 				},
 				"annotations": [],
 				"type": "Parquet",
@@ -371,6 +413,9 @@
 					"referenceName": "ls_dest_adls",
 					"type": "LinkedServiceReference"
 				},
+				"folder": {
+					"name": "02 Raw"
+				},
 				"annotations": [],
 				"type": "DelimitedText",
 				"typeProperties": {
@@ -391,6 +436,33 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/ds_dest_product')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_dest_adls",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "02 Raw"
+				},
+				"annotations": [],
+				"type": "Json",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "product.json",
+						"fileSystem": "raw"
+					}
+				},
+				"schema": {}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_dest_adls')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/ds_dest_store')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -398,6 +470,9 @@
 				"linkedServiceName": {
 					"referenceName": "ls_dest_adls",
 					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "02 Raw"
 				},
 				"annotations": [],
 				"type": "Json",
@@ -423,6 +498,9 @@
 					"referenceName": "ls_source_blob",
 					"type": "LinkedServiceReference"
 				},
+				"folder": {
+					"name": "01 Landing"
+				},
 				"annotations": [],
 				"type": "Json",
 				"typeProperties": {
@@ -446,6 +524,9 @@
 				"linkedServiceName": {
 					"referenceName": "ls_source_blob",
 					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "01 Landing"
 				},
 				"annotations": [],
 				"type": "Parquet",
@@ -472,6 +553,9 @@
 					"referenceName": "ls_source_blob",
 					"type": "LinkedServiceReference"
 				},
+				"folder": {
+					"name": "01 Landing"
+				},
 				"annotations": [],
 				"type": "DelimitedText",
 				"typeProperties": {
@@ -492,6 +576,33 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/ds_source_product')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_source_blob",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "01 Landing"
+				},
+				"annotations": [],
+				"type": "Json",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "products.json",
+						"container": "landing"
+					}
+				},
+				"schema": {}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_source_blob')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/ds_source_store')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -499,6 +610,9 @@
 				"linkedServiceName": {
 					"referenceName": "ls_source_blob",
 					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "01 Landing"
 				},
 				"annotations": [],
 				"type": "Json",
@@ -544,122 +658,6 @@
 				}
 			},
 			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/pipe_copy_product_to_raw')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "copy_product_to_raw",
-						"type": "Copy",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "JsonSource",
-								"storeSettings": {
-									"type": "AzureBlobStorageReadSettings",
-									"recursive": true,
-									"enablePartitionDiscovery": false
-								},
-								"formatSettings": {
-									"type": "JsonReadSettings"
-								}
-							},
-							"sink": {
-								"type": "JsonSink",
-								"storeSettings": {
-									"type": "AzureBlobFSWriteSettings",
-									"copyBehavior": "PreserveHierarchy"
-								},
-								"formatSettings": {
-									"type": "JsonWriteSettings"
-								}
-							},
-							"enableStaging": false
-						},
-						"inputs": [
-							{
-								"referenceName": "ds_source_product",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						],
-						"outputs": [
-							{
-								"referenceName": "ds_dest_product",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						]
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/ds_source_product')]",
-				"[concat(variables('factoryId'), '/datasets/ds_dest_product')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/ds_source_product')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "ls_source_blob",
-					"type": "LinkedServiceReference"
-				},
-				"annotations": [],
-				"type": "Json",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobStorageLocation",
-						"fileName": "products.json",
-						"container": "landing"
-					}
-				},
-				"schema": {}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/ls_source_blob')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/ds_dest_product')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "ls_dest_adls",
-					"type": "LinkedServiceReference"
-				},
-				"annotations": [],
-				"type": "Json",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobFSLocation",
-						"fileName": "product.json",
-						"fileSystem": "raw"
-					}
-				},
-				"schema": {}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/ls_dest_adls')]"
-			]
 		}
 	]
 }
