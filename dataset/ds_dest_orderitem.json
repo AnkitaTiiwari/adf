@@ -1,5 +1,5 @@
 {
-	"name": "ds_dest_adls",
+	"name": "ds_dest_orderitem",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "ls_dest_adls",
@@ -10,7 +10,7 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobFSLocation",
-				"fileName": "order_utem.txt",
+				"fileName": "order_item.txt",
 				"fileSystem": "raw"
 			},
 			"columnDelimiter": ",",
