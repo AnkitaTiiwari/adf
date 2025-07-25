@@ -1,0 +1,19 @@
+{
+	"name": "ds_dest_store",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_dest_adls",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "store.json",
+				"fileSystem": "raw"
+			}
+		},
+		"schema": {}
+	}
+}
