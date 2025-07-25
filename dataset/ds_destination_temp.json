@@ -1,0 +1,41 @@
+{
+	"name": "ds_destination_temp",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_dest_adls",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"folderPath": "temp/sink",
+				"fileSystem": "raw"
+			}
+		},
+		"schema": {
+			"type": "object",
+			"properties": {
+				"ORDER_ID": {
+					"type": "string"
+				},
+				"LINE_ITEM_ID": {
+					"type": "string"
+				},
+				"PRODUCT_ID": {
+					"type": "string"
+				},
+				"UNIT_PRICE": {
+					"type": "string"
+				},
+				"QUANTITY": {
+					"type": "string"
+				},
+				"newcolumn": {
+					"type": "string"
+				}
+			}
+		}
+	}
+}

@@ -1,0 +1,58 @@
+{
+	"name": "df_select",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_source_orderitem",
+						"type": "DatasetReference"
+					},
+					"name": "sourceorderitem"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_dest_orderitem",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "cast1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          ORDER_ID as short,",
+				"          LINE_ITEM_ID as short,",
+				"          PRODUCT_ID as short,",
+				"          UNIT_PRICE as double,",
+				"          QUANTITY as short",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> sourceorderitem",
+				"sourceorderitem cast(output(",
+				"          ORDER_ID as string,",
+				"          LINE_ITEM_ID as string,",
+				"          PRODUCT_ID as string,",
+				"          UNIT_PRICE as double,",
+				"          QUANTITY as integer",
+				"     ),",
+				"     errors: true) ~> cast1",
+				"cast1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> sink1"
+			]
+		}
+	}
+}
