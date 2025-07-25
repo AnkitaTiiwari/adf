@@ -10,10 +10,7 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobStorageLocation",
-				"fileName": {
-					"value": "*.json",
-					"type": "Expression"
-				},
+				"fileName": "customers.json",
 				"container": "landing"
 			}
 		},
