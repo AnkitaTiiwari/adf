@@ -8,14 +8,153 @@
 		"typeProperties": {
 			"sources": [
 				{
+					"dataset": {
+						"referenceName": "ds_structured_product",
+						"type": "DatasetReference"
+					},
 					"name": "SourceProduct"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_structured_order",
+						"type": "DatasetReference"
+					},
+					"name": "sourceOrder"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_structured_store",
+						"type": "DatasetReference"
+					},
+					"name": "sourceStore"
 				}
 			],
-			"sinks": [],
-			"transformations": [],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_Analytics_Product",
+						"type": "DatasetReference"
+					},
+					"name": "sinkToAnalysis"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_Analysis_store",
+						"type": "DatasetReference"
+					},
+					"name": "sinktoAnalysisStore"
+				}
+			],
+			"transformations": [
+				{
+					"name": "joinProductwithOrder"
+				},
+				{
+					"name": "derivedColumn1"
+				},
+				{
+					"name": "selectLimitedColumns"
+				},
+				{
+					"name": "filterOutCancelledOrder"
+				},
+				{
+					"name": "join1"
+				},
+				{
+					"name": "derivedColumn2"
+				},
+				{
+					"name": "select1"
+				},
+				{
+					"name": "filter1"
+				}
+			],
 			"scriptLines": [
-				"source(allowSchemaDrift: true,",
-				"     validateSchema: false) ~> SourceProduct"
+				"source(output(",
+				"          PRODUCT_ID as integer,",
+				"          PRODUCT_NAME as integer,",
+				"          UNIT_PRICE as integer,",
+				"          updated_timestamp as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet') ~> SourceProduct",
+				"source(output(",
+				"          ORDER_ID as integer,",
+				"          ORDER_DATETIME as timestamp,",
+				"          CUSTOMER_ID as integer,",
+				"          ORDER_STATUS as string,",
+				"          STORE_ID as integer,",
+				"          PRODUCT_ID as integer,",
+				"          UNIT_PRICE as integer,",
+				"          QUANTITY as integer,",
+				"          Subtotal as integer,",
+				"          updated_timestamp as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet') ~> sourceOrder",
+				"source(output(",
+				"          LATITUDE as double,",
+				"          LONGITUDE as double,",
+				"          STORE_ID as integer,",
+				"          STORE_NAME as string,",
+				"          updated_timestamp as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet') ~> sourceStore",
+				"SourceProduct, sourceOrder join(SourceProduct@PRODUCT_ID == sourceOrder@PRODUCT_ID,",
+				"     joinType:'left',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> joinProductwithOrder",
+				"joinProductwithOrder derive(Month_Year = concat(toString(month(ORDER_DATETIME)), '-') + toString(year(ORDER_DATETIME))) ~> derivedColumn1",
+				"derivedColumn1 select(mapColumn(",
+				"          PRODUCT_NAME,",
+				"          ORDER_STATUS,",
+				"          Subtotal,",
+				"          Month_Year",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectLimitedColumns",
+				"selectLimitedColumns filter(ORDER_STATUS != 'Cancelled') ~> filterOutCancelledOrder",
+				"sourceStore, sourceOrder join(sourceStore@STORE_ID == sourceOrder@STORE_ID,",
+				"     joinType:'left',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> join1",
+				"join1 derive(Month_Year = concat(toString(month(ORDER_DATETIME)), '-') + toString(year(ORDER_DATETIME))) ~> derivedColumn2",
+				"derivedColumn2 select(mapColumn(",
+				"          LATITUDE,",
+				"          LONGITUDE,",
+				"          STORE_NAME,",
+				"          ORDER_STATUS,",
+				"          Subtotal,",
+				"          Month_Year",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"select1 filter(ORDER_STATUS != 'Cancelled') ~> filter1",
+				"filterOutCancelledOrder sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> sinkToAnalysis",
+				"filter1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> sinktoAnalysisStore"
 			]
 		}
 	}
