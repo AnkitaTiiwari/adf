@@ -1,6 +1,9 @@
 {
 	"name": "df_derrived",
 	"properties": {
+		"folder": {
+			"name": "00 Misc"
+		},
 		"type": "MappingDataFlow",
 		"typeProperties": {
 			"sources": [
@@ -40,7 +43,7 @@
 				"     format: 'parquet') ~> ordersource",
 				"ordersource derive(Order_Status = lower(ORDER_STATUS),",
 				"          Order_Date = toTimestamp(ORDER_DATETIME, 'dd-MMM-yy'),",
-				"          each(match(type == 'string'), $$ = lower($$))) ~> addtimestamp",
+				"          each(match(type=='string'), $$ = lower($$))) ~> addtimestamp",
 				"addtimestamp sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     format: 'parquet',",

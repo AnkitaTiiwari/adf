@@ -1,6 +1,9 @@
 {
 	"name": "df_select",
 	"properties": {
+		"folder": {
+			"name": "00 Misc"
+		},
 		"type": "MappingDataFlow",
 		"typeProperties": {
 			"sources": [

@@ -1,6 +1,9 @@
 {
 	"name": "df_orders_raw_to_cleansed",
 	"properties": {
+		"folder": {
+			"name": "01 Project"
+		},
 		"type": "MappingDataFlow",
 		"typeProperties": {
 			"sources": [
