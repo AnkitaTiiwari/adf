@@ -1,0 +1,22 @@
+{
+	"name": "df_structured_to_Analytics",
+	"properties": {
+		"folder": {
+			"name": "01 Project"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"name": "SourceProduct"
+				}
+			],
+			"sinks": [],
+			"transformations": [],
+			"scriptLines": [
+				"source(allowSchemaDrift: true,",
+				"     validateSchema: false) ~> SourceProduct"
+			]
+		}
+	}
+}

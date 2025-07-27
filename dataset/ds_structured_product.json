@@ -1,0 +1,23 @@
+{
+	"name": "ds_structured_product",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_dest_adls",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "04 structured"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"folderPath": "Product",
+				"fileSystem": "structured"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": []
+	}
+}
