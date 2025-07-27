@@ -1,0 +1,18 @@
+{
+	"name": "trigger1",
+	"properties": {
+		"annotations": [],
+		"runtimeState": "Stopped",
+		"pipelines": [],
+		"type": "BlobEventsTrigger",
+		"typeProperties": {
+			"blobPathBeginsWith": "/landing/blobs/",
+			"ignoreEmptyBlobs": false,
+			"scope": "/subscriptions/fe9e270c-5036-4a39-9aaa-6444d5cb7072/resourceGroups/rg-for-adf/providers/Microsoft.Storage/storageAccounts/sgorders001",
+			"events": [
+				"Microsoft.Storage.BlobCreated",
+				"Microsoft.Storage.BlobDeleted"
+			]
+		}
+	}
+}
