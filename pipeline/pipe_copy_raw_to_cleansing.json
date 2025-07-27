@@ -1,9 +1,9 @@
 {
-	"name": "pipe_test",
+	"name": "pipe_copy_raw_to_cleansing",
 	"properties": {
 		"activities": [
 			{
-				"name": "df_test",
+				"name": "df_Customer",
 				"type": "ExecuteDataFlow",
 				"dependsOn": [],
 				"policy": {
@@ -16,19 +16,19 @@
 				"userProperties": [],
 				"typeProperties": {
 					"dataflow": {
-						"referenceName": "df_test",
+						"referenceName": "df_orders_raw_to_cleansed",
 						"type": "DataFlowReference"
 					},
 					"compute": {
 						"coreCount": 8,
 						"computeType": "General"
 					},
-					"traceLevel": "Coarse"
+					"traceLevel": "Fine"
 				}
 			}
 		],
 		"folder": {
-			"name": "00 Misc"
+			"name": "01 Project"
 		},
 		"annotations": []
 	}

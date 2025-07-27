@@ -294,6 +294,9 @@
 				]
 			}
 		],
+		"folder": {
+			"name": "01 Project"
+		},
 		"annotations": []
 	}
 }

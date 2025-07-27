@@ -5,6 +5,9 @@
 			"referenceName": "ls_dest_adls",
 			"type": "LinkedServiceReference"
 		},
+		"folder": {
+			"name": "00 Misc"
+		},
 		"annotations": [],
 		"type": "Json",
 		"typeProperties": {
