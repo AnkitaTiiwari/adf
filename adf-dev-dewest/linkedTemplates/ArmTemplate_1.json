@@ -13,6 +13,56 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/ds_source_product')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_source_blob",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "01 Landing"
+				},
+				"annotations": [],
+				"type": "Json",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "products.json",
+						"container": "landing"
+					}
+				},
+				"schema": {}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_source_store')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_source_blob",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "01 Landing"
+				},
+				"annotations": [],
+				"type": "Json",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "stores.json",
+						"container": "landing"
+					}
+				},
+				"schema": {}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/ds_source_stores')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -34,6 +84,84 @@
 					}
 				},
 				"schema": {}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_structured_order')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_dest_adls",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "04 structured"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": "Order",
+						"fileSystem": "structured"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_structured_product')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_dest_adls",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "04 structured"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": "Product",
+						"fileSystem": "structured"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_structured_store')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_dest_adls",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "04 structured"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": "Store",
+						"fileSystem": "structured"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": []
 			},
 			"dependsOn": []
 		},
@@ -353,7 +481,10 @@
 				},
 				"annotations": []
 			},
-			"dependsOn": []
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ds_source_product')]",
+				"[concat(variables('factoryId'), '/datasets/ds_source_store')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/pipe_copy_store_behaviour')]",
@@ -531,10 +662,173 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/df_cleansed_to_strctured')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "01 Project"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_sink_cleansing_store",
+								"type": "DatasetReference"
+							},
+							"name": "storeFromCleansed"
+						},
+						{
+							"dataset": {
+								"referenceName": "ds_sink_cleansing_product",
+								"type": "DatasetReference"
+							},
+							"name": "ProductFromCleansed"
+						},
+						{
+							"dataset": {
+								"referenceName": "ds_sink_cleasing_order",
+								"type": "DatasetReference"
+							},
+							"name": "sourceFromOrder"
+						},
+						{
+							"dataset": {
+								"referenceName": "ds_sink_cleansing_orderitem",
+								"type": "DatasetReference"
+							},
+							"name": "sourceFromOrderItem"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ds_structured_store",
+								"type": "DatasetReference"
+							},
+							"name": "sinkToStructuredStore"
+						},
+						{
+							"dataset": {
+								"referenceName": "ds_structured_product",
+								"type": "DatasetReference"
+							},
+							"name": "sinkToStructuredProduct"
+						},
+						{
+							"dataset": {
+								"referenceName": "ds_structured_order",
+								"type": "DatasetReference"
+							},
+							"name": "sinktoStructuredOrder"
+						}
+					],
+					"transformations": [
+						{
+							"name": "derivedColumn1"
+						},
+						{
+							"name": "joinOrderWithOrderItem"
+						},
+						{
+							"name": "select1"
+						}
+					],
+					"scriptLines": [
+						"source(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     format: 'parquet') ~> storeFromCleansed",
+						"source(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     format: 'parquet') ~> ProductFromCleansed",
+						"source(output(",
+						"          ORDER_ID as integer,",
+						"          ORDER_DATETIME as timestamp,",
+						"          CUSTOMER_ID as integer,",
+						"          ORDER_STATUS as string,",
+						"          STORE_ID as integer,",
+						"          updated_timestamp as timestamp",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     format: 'parquet') ~> sourceFromOrder",
+						"source(output(",
+						"          ORDER_ID as integer,",
+						"          LINE_ITEM_ID as integer,",
+						"          PRODUCT_ID as integer,",
+						"          UNIT_PRICE as integer,",
+						"          QUANTITY as integer,",
+						"          updated_timestamp as date",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     format: 'parquet') ~> sourceFromOrderItem",
+						"sourceFromOrderItem derive(Subtotal = multiply(QUANTITY,UNIT_PRICE)) ~> derivedColumn1",
+						"sourceFromOrder, derivedColumn1 join(sourceFromOrder@ORDER_ID == sourceFromOrderItem@ORDER_ID,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> joinOrderWithOrderItem",
+						"joinOrderWithOrderItem select(mapColumn(",
+						"          ORDER_ID = sourceFromOrder@ORDER_ID,",
+						"          ORDER_DATETIME,",
+						"          CUSTOMER_ID,",
+						"          ORDER_STATUS,",
+						"          STORE_ID,",
+						"          PRODUCT_ID,",
+						"          UNIT_PRICE,",
+						"          QUANTITY,",
+						"          Subtotal,",
+						"          updated_timestamp = sourceFromOrder@updated_timestamp",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select1",
+						"storeFromCleansed sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'parquet',",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> sinkToStructuredStore",
+						"ProductFromCleansed sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'parquet',",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> sinkToStructuredProduct",
+						"select1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'parquet',",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> sinktoStructuredOrder"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ds_structured_store')]",
+				"[concat(variables('factoryId'), '/datasets/ds_structured_product')]",
+				"[concat(variables('factoryId'), '/datasets/ds_structured_order')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/df_derrived')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
 			"properties": {
+				"folder": {
+					"name": "00 Misc"
+				},
 				"type": "MappingDataFlow",
 				"typeProperties": {
 					"sources": [
@@ -593,6 +887,9 @@
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
 			"properties": {
+				"folder": {
+					"name": "01 Project"
+				},
 				"type": "MappingDataFlow",
 				"typeProperties": {
 					"sources": [
@@ -783,15 +1080,15 @@
 						"sourceproduct derive(updated_timestamp = toTimestamp(currentDate())) ~> deriveUpdatedDate",
 						"deriveUpdatedDate cast(output(",
 						"          PRODUCT_ID as integer,",
-						"          PRODUCT_NAME as integer,",
+						"          PRODUCT_NAME as string,",
 						"          UNIT_PRICE as integer,",
 						"          updated_timestamp as timestamp",
 						"     ),",
 						"     errors: true) ~> cast2",
 						"sourceStore derive(updated_timestamp = toTimestamp(currentDate())) ~> derivedColumn1",
 						"derivedColumn1 cast(output(",
-						"          LATITUDE as double,",
-						"          LONGITUDE as double,",
+						"          LATITUDE as integer,",
+						"          LONGITUDE as integer,",
 						"          STORE_ID as integer,",
 						"          STORE_NAME as string,",
 						"          updated_timestamp as timestamp",
@@ -854,6 +1151,9 @@
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
 			"properties": {
+				"folder": {
+					"name": "00 Misc"
+				},
 				"type": "MappingDataFlow",
 				"typeProperties": {
 					"sources": [
@@ -911,10 +1211,181 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/df_structured_to_Analytics')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "01 Project"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_structured_product",
+								"type": "DatasetReference"
+							},
+							"name": "SourceProduct"
+						},
+						{
+							"dataset": {
+								"referenceName": "ds_structured_order",
+								"type": "DatasetReference"
+							},
+							"name": "sourceOrder"
+						},
+						{
+							"dataset": {
+								"referenceName": "ds_structured_store",
+								"type": "DatasetReference"
+							},
+							"name": "sourceStore"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ds_Analytics_Product",
+								"type": "DatasetReference"
+							},
+							"name": "sinkToAnalysis"
+						},
+						{
+							"dataset": {
+								"referenceName": "ds_Analysis_store",
+								"type": "DatasetReference"
+							},
+							"name": "sinktoAnalysisStore"
+						}
+					],
+					"transformations": [
+						{
+							"name": "joinProductwithOrder"
+						},
+						{
+							"name": "derivedColumn1"
+						},
+						{
+							"name": "selectLimitedColumns"
+						},
+						{
+							"name": "filterOutCancelledOrder"
+						},
+						{
+							"name": "join1"
+						},
+						{
+							"name": "derivedColumn2"
+						},
+						{
+							"name": "select1"
+						},
+						{
+							"name": "filter1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          PRODUCT_ID as integer,",
+						"          PRODUCT_NAME as integer,",
+						"          UNIT_PRICE as integer,",
+						"          updated_timestamp as timestamp",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     format: 'parquet') ~> SourceProduct",
+						"source(output(",
+						"          ORDER_ID as integer,",
+						"          ORDER_DATETIME as timestamp,",
+						"          CUSTOMER_ID as integer,",
+						"          ORDER_STATUS as string,",
+						"          STORE_ID as integer,",
+						"          PRODUCT_ID as integer,",
+						"          UNIT_PRICE as integer,",
+						"          QUANTITY as integer,",
+						"          Subtotal as integer,",
+						"          updated_timestamp as timestamp",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     format: 'parquet') ~> sourceOrder",
+						"source(output(",
+						"          LATITUDE as double,",
+						"          LONGITUDE as double,",
+						"          STORE_ID as integer,",
+						"          STORE_NAME as string,",
+						"          updated_timestamp as timestamp",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     format: 'parquet') ~> sourceStore",
+						"SourceProduct, sourceOrder join(SourceProduct@PRODUCT_ID == sourceOrder@PRODUCT_ID,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> joinProductwithOrder",
+						"joinProductwithOrder derive(Month_Year = concat(toString(month(ORDER_DATETIME)), '-') + toString(year(ORDER_DATETIME))) ~> derivedColumn1",
+						"derivedColumn1 select(mapColumn(",
+						"          PRODUCT_NAME,",
+						"          ORDER_STATUS,",
+						"          Subtotal,",
+						"          Month_Year",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> selectLimitedColumns",
+						"selectLimitedColumns filter(ORDER_STATUS != 'CANCELLED') ~> filterOutCancelledOrder",
+						"sourceStore, sourceOrder join(sourceStore@STORE_ID == sourceOrder@STORE_ID,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> join1",
+						"join1 derive(Month_Year = concat(toString(month(ORDER_DATETIME)), '-') + toString(year(ORDER_DATETIME))) ~> derivedColumn2",
+						"derivedColumn2 select(mapColumn(",
+						"          LATITUDE,",
+						"          LONGITUDE,",
+						"          STORE_NAME,",
+						"          ORDER_STATUS,",
+						"          Subtotal,",
+						"          Month_Year",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select1",
+						"select1 filter(ORDER_STATUS != 'CANCELLED') ~> filter1",
+						"filterOutCancelledOrder sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> sinkToAnalysis",
+						"filter1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> sinktoAnalysisStore"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ds_structured_product')]",
+				"[concat(variables('factoryId'), '/datasets/ds_structured_order')]",
+				"[concat(variables('factoryId'), '/datasets/ds_structured_store')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/df_test')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
 			"properties": {
+				"folder": {
+					"name": "00 Misc"
+				},
 				"type": "MappingDataFlow",
 				"typeProperties": {
 					"sources": [
@@ -957,6 +1428,112 @@
 				}
 			},
 			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pipe_copy_Structured_to_Analysis')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Data flow1",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "df_structured_to_Analytics",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"SourceProduct": {},
+									"sourceOrder": {},
+									"sourceStore": {},
+									"sinkToAnalysis": {},
+									"sinktoAnalysisStore": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "01 Project"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/df_structured_to_Analytics')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pipe_copy_cleansing_to_structured')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "cleansing_to_structured",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "df_cleansed_to_strctured",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"storeFromCleansed": {},
+									"ProductFromCleansed": {},
+									"sourceFromOrder": {},
+									"sourceFromOrderItem": {},
+									"sinkToStructuredStore": {},
+									"sinkToStructuredProduct": {},
+									"sinktoStructuredOrder": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "01 Project"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/df_cleansed_to_strctured')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/pipe_copy_raw_to_cleansing')]",
