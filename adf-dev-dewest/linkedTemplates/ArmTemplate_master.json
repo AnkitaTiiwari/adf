@@ -19,6 +19,10 @@
 			"type": "string",
 			"defaultValue": "https://dladforder0001.dfs.core.windows.net/"
 		},
+		"trigger1_properties_typeProperties_scope": {
+			"type": "string",
+			"defaultValue": "/subscriptions/fe9e270c-5036-4a39-9aaa-6444d5cb7072/resourceGroups/rg-for-adf/providers/Microsoft.Storage/storageAccounts/sgorders001"
+		},
 		"containerUri": {
 			"type": "string",
 			"metadata": "URI to storage account containing linked ARM templates"
@@ -54,6 +58,9 @@
 					},
 					"ls_dest_adls_properties_typeProperties_url": {
 						"value": "[parameters('ls_dest_adls_properties_typeProperties_url')]"
+					},
+					"trigger1_properties_typeProperties_scope": {
+						"value": "[parameters('trigger1_properties_typeProperties_scope')]"
 					}
 				}
 			},

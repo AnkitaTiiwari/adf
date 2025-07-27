@@ -18,6 +18,10 @@
 		"ls_dest_adls_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://dladforder0001.dfs.core.windows.net/"
+		},
+		"trigger1_properties_typeProperties_scope": {
+			"type": "string",
+			"defaultValue": "/subscriptions/fe9e270c-5036-4a39-9aaa-6444d5cb7072/resourceGroups/rg-for-adf/providers/Microsoft.Storage/storageAccounts/sgorders001"
 		}
 	},
 	"variables": {
@@ -2435,6 +2439,27 @@
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/pipelines/master_pipe')]"
 			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/trigger1')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Stopped",
+				"pipelines": [],
+				"type": "BlobEventsTrigger",
+				"typeProperties": {
+					"blobPathBeginsWith": "/landing/blobs/",
+					"ignoreEmptyBlobs": false,
+					"scope": "[parameters('trigger1_properties_typeProperties_scope')]",
+					"events": [
+						"Microsoft.Storage.BlobCreated",
+						"Microsoft.Storage.BlobDeleted"
+					]
+				}
+			},
+			"dependsOn": []
 		}
 	]
 }

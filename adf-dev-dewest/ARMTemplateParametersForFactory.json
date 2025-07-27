@@ -13,6 +13,9 @@
 		},
 		"ls_dest_adls_properties_typeProperties_url": {
 			"value": "https://dladforder0001.dfs.core.windows.net/"
+		},
+		"trigger1_properties_typeProperties_scope": {
+			"value": "/subscriptions/fe9e270c-5036-4a39-9aaa-6444d5cb7072/resourceGroups/rg-for-adf/providers/Microsoft.Storage/storageAccounts/sgorders001"
 		}
 	}
 }
