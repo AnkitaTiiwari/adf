@@ -1,0 +1,96 @@
+{
+	"name": "master_pipe",
+	"properties": {
+		"activities": [
+			{
+				"name": "from_customer_Raw",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pipe_copy_customer_to_raw",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "from_Raw_cleansing",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "from_customer_Raw",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pipe_copy_raw_to_cleansing",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "from_cleasnsing_to_structured",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "from_Raw_cleansing",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pipe_copy_cleansing_to_structured",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "from Structures to Analysis",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "from_cleasnsing_to_structured",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pipe_copy_Structured_to_Analysis",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			}
+		],
+		"folder": {
+			"name": "01 Project"
+		},
+		"annotations": []
+	}
+}
