@@ -970,7 +970,7 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/df_select')]",
+			"name": "[concat(parameters('factoryName'), '/df_derrived')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -979,58 +979,55 @@
 					"sources": [
 						{
 							"dataset": {
-								"referenceName": "ds_source_orderitem",
+								"referenceName": "ds_source_order",
 								"type": "DatasetReference"
 							},
-							"name": "sourceorderitem"
+							"name": "ordersource"
 						}
 					],
 					"sinks": [
 						{
 							"dataset": {
-								"referenceName": "ds_dest_orderitem",
+								"referenceName": "ds_dest_order",
 								"type": "DatasetReference"
 							},
-							"name": "sink1"
+							"name": "dsorder"
 						}
 					],
 					"transformations": [
 						{
-							"name": "cast1"
+							"name": "addtimestamp"
 						}
 					],
 					"scriptLines": [
 						"source(output(",
-						"          ORDER_ID as short,",
-						"          LINE_ITEM_ID as short,",
-						"          PRODUCT_ID as short,",
-						"          UNIT_PRICE as double,",
-						"          QUANTITY as short",
+						"          ORDER_ID as string,",
+						"          ORDER_DATETIME as string,",
+						"          CUSTOMER_ID as string,",
+						"          ORDER_STATUS as string,",
+						"          STORE_ID as string",
 						"     ),",
 						"     allowSchemaDrift: true,",
 						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> sourceorderitem",
-						"sourceorderitem cast(output(",
-						"          ORDER_ID as string,",
-						"          LINE_ITEM_ID as string,",
-						"          PRODUCT_ID as string,",
-						"          UNIT_PRICE as double,",
-						"          QUANTITY as integer",
-						"     ),",
-						"     errors: true) ~> cast1",
-						"cast1 sink(allowSchemaDrift: true,",
+						"     ignoreNoFilesFound: false,",
+						"     format: 'parquet') ~> ordersource",
+						"ordersource derive(Order_Status = lower(ORDER_STATUS),",
+						"          Order_Date = toTimestamp(ORDER_DATETIME, 'dd-MMM-yy'),",
+						"          each(match(type=='string'), $$ = lower($$))) ~> addtimestamp",
+						"addtimestamp sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
+						"     format: 'parquet',",
 						"     umask: 0022,",
 						"     preCommands: [],",
 						"     postCommands: [],",
 						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> sink1"
+						"     skipDuplicateMapOutputs: true) ~> dsorder"
 					]
 				}
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/ds_source_orderitem')]",
-				"[concat(variables('factoryId'), '/datasets/ds_dest_orderitem')]"
+				"[concat(variables('factoryId'), '/datasets/ds_source_order')]",
+				"[concat(variables('factoryId'), '/datasets/ds_dest_order')]"
 			]
 		}
 	]
