@@ -13,7 +13,10 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobFSLocation",
-				"folderPath": "OrderItem",
+				"folderPath": {
+					"value": "@concat('OrderItem/',formatDateTime(utcNow(),'yyyy-MM-dd'))",
+					"type": "Expression"
+				},
 				"fileSystem": "cleansed"
 			},
 			"compressionCodec": "snappy"
