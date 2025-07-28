@@ -14,7 +14,7 @@
 			"location": {
 				"type": "AzureBlobFSLocation",
 				"folderPath": {
-					"value": "@concat('Product/',formatDateTime(utcNow(),'yyyy-MM-dd'))",
+					"value": "@concat('Store/',formatDateTime(utcNow(),'yyyy-MM-dd'))",
 					"type": "Expression"
 				},
 				"fileSystem": "cleansed"
