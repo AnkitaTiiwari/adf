@@ -68,6 +68,9 @@
 				},
 				{
 					"name": "select1"
+				},
+				{
+					"name": "derivedColumn2"
 				}
 			],
 			"scriptLines": [
@@ -123,6 +126,7 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> select1",
+				"select1 derive(Order_Item_ID = concat(ORDER_ID, PRODUCT_ID)) ~> derivedColumn2",
 				"storeFromCleansed sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     format: 'parquet',",
@@ -139,7 +143,7 @@
 				"     postCommands: [],",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> sinkToStructuredProduct",
-				"select1 sink(allowSchemaDrift: true,",
+				"derivedColumn2 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     format: 'parquet',",
 				"     umask: 0022,",
