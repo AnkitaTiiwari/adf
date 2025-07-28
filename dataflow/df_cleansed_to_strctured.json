@@ -126,7 +126,7 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> select1",
-				"select1 derive(Order_Item_ID = concat(ORDER_ID, PRODUCT_ID)) ~> derivedColumn2",
+				"select1 derive(Order_Item_ID = concat(toString(ORDER_ID), toString(PRODUCT_ID))) ~> derivedColumn2",
 				"storeFromCleansed sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     format: 'parquet',",
