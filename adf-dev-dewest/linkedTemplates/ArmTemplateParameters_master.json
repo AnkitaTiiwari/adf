@@ -11,8 +11,20 @@
 		"ls_source_blob_connectionString": {
 			"value": ""
 		},
+		"ls_sql_server_password": {
+			"value": ""
+		},
 		"ls_dest_adls_properties_typeProperties_url": {
 			"value": "https://dladforder0001.dfs.core.windows.net/"
+		},
+		"ls_sql_server_properties_typeProperties_server": {
+			"value": "sqlserver-order.database.windows.net"
+		},
+		"ls_sql_server_properties_typeProperties_database": {
+			"value": "sqlserver-order"
+		},
+		"ls_sql_server_properties_typeProperties_userName": {
+			"value": "User"
 		},
 		"trigger1_properties_typeProperties_scope": {
 			"value": "/subscriptions/fe9e270c-5036-4a39-9aaa-6444d5cb7072/resourceGroups/rg-for-adf/providers/Microsoft.Storage/storageAccounts/sgorders001"

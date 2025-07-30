@@ -15,9 +15,25 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'ls_source_blob'"
 		},
+		"ls_sql_server_password": {
+			"type": "secureString",
+			"metadata": "Secure string for 'password' of 'ls_sql_server'"
+		},
 		"ls_dest_adls_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://dladforder0001.dfs.core.windows.net/"
+		},
+		"ls_sql_server_properties_typeProperties_server": {
+			"type": "string",
+			"defaultValue": "sqlserver-order.database.windows.net"
+		},
+		"ls_sql_server_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": "sqlserver-order"
+		},
+		"ls_sql_server_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "User"
 		},
 		"trigger1_properties_typeProperties_scope": {
 			"type": "string",
@@ -54,6 +70,28 @@
 				"type": "AzureBlobStorage",
 				"typeProperties": {
 					"connectionString": "[parameters('ls_source_blob_connectionString')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ls_sql_server')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureSqlDatabase",
+				"typeProperties": {
+					"server": "[parameters('ls_sql_server_properties_typeProperties_server')]",
+					"database": "[parameters('ls_sql_server_properties_typeProperties_database')]",
+					"encrypt": "mandatory",
+					"trustServerCertificate": false,
+					"authenticationType": "SQL",
+					"userName": "[parameters('ls_sql_server_properties_typeProperties_userName')]",
+					"password": {
+						"type": "SecureString",
+						"value": "[parameters('ls_sql_server_password')]"
+					}
 				}
 			},
 			"dependsOn": []
@@ -186,6 +224,10 @@
 					"location": {
 						"type": "AzureBlobFSLocation",
 						"fileName": "customers.json",
+						"folderPath": {
+							"value": "@formatDateTime(utcNow(),'yyyy-MM-dd')",
+							"type": "Expression"
+						},
 						"fileSystem": "raw"
 					}
 				},
@@ -226,6 +268,10 @@
 					"location": {
 						"type": "AzureBlobFSLocation",
 						"fileName": "order.parquet",
+						"folderPath": {
+							"value": "@formatDateTime(utcNow(),'yyyy-MM-dd')",
+							"type": "Expression"
+						},
 						"fileSystem": "raw"
 					},
 					"compressionCodec": "snappy"
@@ -254,6 +300,10 @@
 					"location": {
 						"type": "AzureBlobFSLocation",
 						"fileName": "order_item.txt",
+						"folderPath": {
+							"value": "@formatDateTime(utcNow(),'yyyy-MM-dd')",
+							"type": "Expression"
+						},
 						"fileSystem": "raw"
 					},
 					"columnDelimiter": ",",
@@ -285,6 +335,10 @@
 					"location": {
 						"type": "AzureBlobFSLocation",
 						"fileName": "product.json",
+						"folderPath": {
+							"value": "@formatDateTime(utcNow(),'yyyy-MM-dd')",
+							"type": "Expression"
+						},
 						"fileSystem": "raw"
 					}
 				},
@@ -312,6 +366,10 @@
 					"location": {
 						"type": "AzureBlobFSLocation",
 						"fileName": "store.json",
+						"folderPath": {
+							"value": "@formatDateTime(utcNow(),'yyyy-MM-dd')",
+							"type": "Expression"
+						},
 						"fileSystem": "raw"
 					}
 				},
@@ -414,7 +472,10 @@
 				"typeProperties": {
 					"location": {
 						"type": "AzureBlobFSLocation",
-						"folderPath": "Customer",
+						"folderPath": {
+							"value": "@concat('Customer/',formatDateTime(utcNow(),'yyyy-MM-dd'))",
+							"type": "Expression"
+						},
 						"fileSystem": "cleansed"
 					},
 					"compressionCodec": "snappy"
@@ -442,7 +503,10 @@
 				"typeProperties": {
 					"location": {
 						"type": "AzureBlobFSLocation",
-						"folderPath": "OrderItem",
+						"folderPath": {
+							"value": "@concat('OrderItem/',formatDateTime(utcNow(),'yyyy-MM-dd'))",
+							"type": "Expression"
+						},
 						"fileSystem": "cleansed"
 					},
 					"compressionCodec": "snappy"
@@ -470,7 +534,10 @@
 				"typeProperties": {
 					"location": {
 						"type": "AzureBlobFSLocation",
-						"folderPath": "Product",
+						"folderPath": {
+							"value": "@concat('Product/',formatDateTime(utcNow(),'yyyy-MM-dd'))",
+							"type": "Expression"
+						},
 						"fileSystem": "cleansed"
 					},
 					"compressionCodec": "snappy"
@@ -498,7 +565,10 @@
 				"typeProperties": {
 					"location": {
 						"type": "AzureBlobFSLocation",
-						"folderPath": "Store",
+						"folderPath": {
+							"value": "@concat('Store/',formatDateTime(utcNow(),'yyyy-MM-dd'))",
+							"type": "Expression"
+						},
 						"fileSystem": "cleansed"
 					},
 					"compressionCodec": "snappy"
@@ -526,7 +596,10 @@
 				"typeProperties": {
 					"location": {
 						"type": "AzureBlobFSLocation",
-						"folderPath": "Order",
+						"folderPath": {
+							"value": "@concat('Order/',formatDateTime(utcNow(),'yyyy-MM-dd'))",
+							"type": "Expression"
+						},
 						"fileSystem": "cleansed"
 					},
 					"compressionCodec": "snappy"
@@ -567,52 +640,6 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/ls_dest_adls')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/ds_source_blob')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "ls_source_blob",
-					"type": "LinkedServiceReference"
-				},
-				"folder": {
-					"name": "00 Misc"
-				},
-				"annotations": [],
-				"type": "Json",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobStorageLocation",
-						"folderPath": "LandingData",
-						"container": "landing"
-					}
-				},
-				"schema": {
-					"type": "object",
-					"properties": {
-						"STORE_ID": {
-							"type": "string"
-						},
-						"STORE_NAME": {
-							"type": "string"
-						},
-						"WEB_ADDRESS": {
-							"type": "null"
-						},
-						"LATITUDE": {
-							"type": "string"
-						},
-						"LONGITUDE": {
-							"type": "string"
-						}
-					}
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/ls_source_blob')]"
 			]
 		}
 	]

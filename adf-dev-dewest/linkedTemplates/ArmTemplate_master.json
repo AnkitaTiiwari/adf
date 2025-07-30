@@ -15,9 +15,25 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'ls_source_blob'"
 		},
+		"ls_sql_server_password": {
+			"type": "secureString",
+			"metadata": "Secure string for 'password' of 'ls_sql_server'"
+		},
 		"ls_dest_adls_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://dladforder0001.dfs.core.windows.net/"
+		},
+		"ls_sql_server_properties_typeProperties_server": {
+			"type": "string",
+			"defaultValue": "sqlserver-order.database.windows.net"
+		},
+		"ls_sql_server_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": "sqlserver-order"
+		},
+		"ls_sql_server_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "User"
 		},
 		"trigger1_properties_typeProperties_scope": {
 			"type": "string",
@@ -56,8 +72,20 @@
 					"ls_source_blob_connectionString": {
 						"value": "[parameters('ls_source_blob_connectionString')]"
 					},
+					"ls_sql_server_password": {
+						"value": "[parameters('ls_sql_server_password')]"
+					},
 					"ls_dest_adls_properties_typeProperties_url": {
 						"value": "[parameters('ls_dest_adls_properties_typeProperties_url')]"
+					},
+					"ls_sql_server_properties_typeProperties_server": {
+						"value": "[parameters('ls_sql_server_properties_typeProperties_server')]"
+					},
+					"ls_sql_server_properties_typeProperties_database": {
+						"value": "[parameters('ls_sql_server_properties_typeProperties_database')]"
+					},
+					"ls_sql_server_properties_typeProperties_userName": {
+						"value": "[parameters('ls_sql_server_properties_typeProperties_userName')]"
 					},
 					"trigger1_properties_typeProperties_scope": {
 						"value": "[parameters('trigger1_properties_typeProperties_scope')]"
