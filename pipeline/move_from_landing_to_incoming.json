@@ -1,0 +1,9 @@
+{
+	"name": "move_from_landing_to_incoming",
+	"properties": {
+		"folder": {
+			"name": "NYC_Taxi"
+		},
+		"annotations": []
+	}
+}
