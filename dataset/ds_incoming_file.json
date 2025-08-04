@@ -1,0 +1,22 @@
+{
+	"name": "ds_incoming_file",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_dest_adls",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "NYC_Taxi"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileSystem": "incoming"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": []
+	}
+}
