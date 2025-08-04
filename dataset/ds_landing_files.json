@@ -1,0 +1,22 @@
+{
+	"name": "ds_landing_files",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_source_blob",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "NYC_Taxi"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"container": "yellotaxi"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": []
+	}
+}
